@@ -1,0 +1,5 @@
+#!/bin/sh
+mount -a
+mdev -sd
+cat /etc/welcome
+/bin/sh

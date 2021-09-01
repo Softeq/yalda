@@ -1,0 +1,20 @@
+::sysinit:/etc/init.d/rc
+
+# /bin/sh invocations on selected ttys
+#
+# Note below that we prefix the shell commands with a "-" to indicate to the
+# shell that it is supposed to be a login shell.  Normally this is handled by
+# login, but since we are bypassing login in this case, BusyBox lets you do
+# this yourself...
+#
+# Start an "askfirst" shell on the console (whatever that may be)
+::askfirst:/bin/sh
+# Start an "askfirst" shell on /dev/tty2-4
+#tty2::askfirst:-/bin/sh
+#tty3::askfirst:-/bin/sh
+#tty4::askfirst:-/bin/sh
+
+#::respawn:/bin/sh
+::restart:/sbin/init
+::ctrlaltdel:/sbin/reboot
+::shutdown:/bin/umount -a -r

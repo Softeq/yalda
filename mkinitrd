@@ -1,0 +1,14 @@
+#!/bin/bash
+
+OUT=out
+
+mkdir -p ${OUT}
+pushd ${OUT}>/dev/null
+cp -r ../filesystem/* .
+cp -r ../busybox/_install/* .
+pushd ../linux/out/ >/dev/null
+find . -depth -type f -o -type d | cpio -pamdu --quiet ../../${OUT}
+popd >/dev/null
+find . | cpio -H newc -o | gzip -9 > ../initrd.cpio.gz
+popd >/dev/null
+rm -rf ${OUT}

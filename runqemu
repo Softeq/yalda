@@ -1,0 +1,12 @@
+qemu-system-x86_64 \
+		-initrd initrd.cpio.gz \
+		-kernel linux/arch/x86_64/boot/bzImage \
+		-append "nokaslr, console=ttyS0" \
+		-gdb tcp::1234 \
+		-nographic \
+		-enable-kvm \
+		-fsdev local,id=test_dev,path=./,security_model=none -device virtio-9p-pci,fsdev=test_dev,mount_tag=host_share \
+		-m 2g \
+
+#		-S
+

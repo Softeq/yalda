@@ -1,0 +1,1 @@
+gdb --nx -iex "set auto-load safe-path /" --tui linux/vmlinux
