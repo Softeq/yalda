@@ -4,6 +4,7 @@ OUT=out
 
 mkdir -p ${OUT}
 pushd ${OUT}>/dev/null
+mkdir -pv {dev,proc,mnt/share,sys,tmp}
 cp -r ../filesystem/* .
 cp -r ../busybox/_install/* .
 pushd ../linux/out/ >/dev/null
