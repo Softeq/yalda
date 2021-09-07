@@ -1,7 +1,3 @@
-# /etc/profile: system-wide .profile file for the Bourne shells
+# /etc/profile: system-wide .profile file
 
-echo
-echo -n "Processing /etc/profile... "
-# no-op
-echo "Done"
-echo
+export HOME=/home

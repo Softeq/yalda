@@ -1,8 +1,9 @@
-# <file system> <mount point>   <type>          <options>                       <dump>  <pass>
-proc            /proc           proc            defaults                        0       0
-tmpfs           /tmp            tmpfs           defaults                        0       0
-sysfs           /sys            sysfs           defaults                        0       0
-host_share      /mnt/share      9p              trans=virtio,version=9p2000.L   0       0
-#devpts          /dev/pts        devpts          defaults                        0       0
-#tmpfs           /dev/shm        tmpfs           defaults                        0       0
-#usbfs           /proc/bus/usb   usbfs           defaults                        0       0
+# device-spec   mount-point     fs-type         options                                       dump    pass
+host_home       /home           9p              trans=virtio,version=9p2000.L                 0       0
+none            /proc           proc            defaults                                      0       0
+none            /tmp            tmpfs           defaults                                      0       0
+none            /sys            sysfs           defaults                                      0       0
+none            /dev/pts        devpts          defaults                                      0       0
+#tmpfs           /dev/shm        tmpfs           defaults                                      0       0
+#usbfs           /proc/bus/usb   usbfs           defaults                                      0       0
+host_share      /mnt/share      9p              trans=virtio,version=9p2000.L                 0       0

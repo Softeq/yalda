@@ -1,5 +1,10 @@
 #!/bin/sh
+mount -t devtmpfs mdev /dev -o rw,relatime,size=490444k,nr_inodes=122611,mode=755
+mkdir /dev/pts
+#touch /dev/mdev.log
 mount -a
-mdev -sd
+sysctl -w kernel.hotplug=/sbin/mdev > /dev/null
+mdev -s
 cat /etc/welcome
+. /etc/profile
 /bin/sh

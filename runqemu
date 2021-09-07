@@ -1,3 +1,4 @@
+mkdir -p home
 qemu-system-x86_64 \
 		-initrd initrd.cpio.gz \
 		-kernel linux/arch/x86_64/boot/bzImage \
@@ -5,8 +6,11 @@ qemu-system-x86_64 \
 		-gdb tcp::1234 \
 		-nographic \
 		-enable-kvm \
-		-fsdev local,id=test_dev,path=./,security_model=none -device virtio-9p-pci,fsdev=test_dev,mount_tag=host_share \
+		-fsdev local,id=home_dev,path=home,security_model=none -device virtio-9p-pci,fsdev=home_dev,mount_tag=host_home \
+		-fsdev local,id=share_dev,path=./,security_model=none -device virtio-9p-pci,fsdev=share_dev,mount_tag=host_share \
 		-m 2g \
+		-usb -device usb-host,vendorid=0x1a86,productid=0x5512 \
 
+#		-usb -device usb-host,hostbus=1,hostaddr=16 \
 #		-S
 
