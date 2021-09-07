@@ -1,6 +1,6 @@
 # Yet Another Linux Development Approach
 
-##Quick start
+## Quick start
 - call ./runqemu
 - run gdb (i.e ./rungdb)
 - attach the kernel via ```target remote :1234```
@@ -9,7 +9,7 @@
 - add breakpoint to you module functions. (make sure __init attribure is not used for your module init function)
 - enjoy
 
-##Description
+## Description
 See scripts please. It is easy
 Useful things:
 - it mounts ./ path to /mnt/share inside QEMU
@@ -18,5 +18,5 @@ Useful things:
 - in order to enter QEMU console use ctrl-a-c
 - uncomment -S in order to debug kernel from early begining
 
-##Known issues
+## Known issues
 - ctrl-c does not work in ash scripts
