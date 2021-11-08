@@ -7,6 +7,10 @@ git clone --depth 1 --branch master git://git.kernel.org/pub/scm/linux/kernel/gi
 pushd linux
 make tinyconfig
 ./scripts/kconfig/merge_config.sh .config ../kernel.config
+
+# Patch enables debug symbols in .init* sections of kernel modules
+git apply ../kernel_scripts_gdb.patch
+
 make bzImage -j4
 make modules_prepare
 make modules -j4

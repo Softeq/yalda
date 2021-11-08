@@ -1,0 +1,13 @@
+set pagination off
+
+target remote :1234
+
+b do_init_module
+commands
+silent
+	lx-symbols
+	tb *mod->init
+	tb *mod->exit
+	c
+end
+c
