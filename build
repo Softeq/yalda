@@ -26,4 +26,9 @@ popd
 
 ./mkinitrd
 
+LINUX_DIR=$(realpath linux)
+pushd usb-debug-whistle/subcomponents/kernel_module
+make KERNEL_DIR=$LINUX_DIR USE_DKMS=n
+popd
+
 echo "Well done"
