@@ -2,9 +2,10 @@
 
 set -e
 
-git clone --depth 1 --branch master git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git linux
+LINUX_DIR=$(realpath linux)
+git clone --depth 1 --branch master git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git $LINUX_DIR
 
-pushd linux
+pushd $LINUX_DIR
 make tinyconfig
 ./scripts/kconfig/merge_config.sh .config ../kernel.config
 
@@ -25,5 +26,9 @@ make install
 popd
 
 ./mkinitrd
+
+pushd usb-debug-whistle/subcomponents/kernel_module
+make KERNEL_DIR=$LINUX_DIR USE_DKMS=n
+popd
 
 echo "Well done"

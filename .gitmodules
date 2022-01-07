@@ -1,0 +1,3 @@
+[submodule "usb-debug-whistle"]
+	path = usb-debug-whistle
+	url = ssh://git@stash.softeq.com:7999/emblab/usb-debug-whistle.git
