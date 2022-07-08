@@ -1,5 +1,13 @@
 # Yet Another Linux Development Approach
 
+## Build components
+- call ./build
+- It support various of parameters.
+- Use ./build --version [version] or -v [version] for fetching specific kernel.
+- Use ./build --no-download or ./build -n for ommitting kernel and busybox download.
+- Use ./build --arch [arch] to build for specific target architecture.
+- At the moment [arch] can be x86_64 or arm
+
 ## Quick start
 - call ./runqemu
 - run gdb (i.e ./rungdb)

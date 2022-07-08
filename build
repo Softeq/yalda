@@ -1,34 +1,145 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 
-LINUX_DIR=$(realpath linux)
-git clone --depth 1 --branch master git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git $LINUX_DIR
+DOWNLOAD_KERNEL="y"
+DOWNLOAD_BUSYBOX="y"
 
-pushd $LINUX_DIR
-make tinyconfig
-./scripts/kconfig/merge_config.sh .config ../kernel.config
+BUILD_KERNEL="y"
 
-# Patch enables debug symbols in .init* sections of kernel modules
-git apply ../kernel_scripts_gdb.patch
+VERSION="last"
+LINUX_DIR="$(realpath linux)"
+LINUX_GIT="git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
+LINUX_BRANCH="master"
+TARGET_ARCH="$(uname -m)"
 
-make bzImage -j4
-make modules_prepare
-make modules -j4
-make modules_install INSTALL_MOD_PATH=out
-popd
+BUSYBOX_GIT="git://busybox.net/busybox.git"
+BUSYBOX_BRANCH="master"
+BUSYBOX_DIR="busybox"
 
-git clone --depth 1 --branch master git://busybox.net/busybox.git busybox
-pushd busybox
-make defconfig KBUILD_DEFCONFIG=../busybox.config 
-make -j4
-make install
-popd
+WHISTLE_MODULE_DIR="usb-debug-whistle/subcomponents/kernel_module"
 
-./mkinitrd
+function host_kernel_version {
+		echo "$(uname -r | cut -d- -f1 | cut -d. -f1,2)"
+}
 
-pushd usb-debug-whistle/subcomponents/kernel_module
-make KERNEL_DIR=$LINUX_DIR USE_DKMS=n
-popd
+function get_kernel {
+	# set branch name based on required kernel version
+	if   [ "${VERSION}" == "host" ]; then
+		LINUX_BRANCH="v$(host_kernel_version)"
+	elif [ "${VERSION}" == "last" ]; then
+		LINUX_BRANCH="master"
+	else
+		LINUX_BRANCH="v${VERSION}"
+	fi
+
+	git clone -b "${LINUX_BRANCH}" --depth 1 "${LINUX_GIT}" "${LINUX_DIR}"
+
+	# Patch enables debug symbols in .init* sections of kernel modules
+		git apply ../kernel_scripts_gdb.patch
+}
+
+function config_kernel {
+	pushd "${LINUX_DIR}"
+
+	if [ "${TARGET_ARCH}" == "x86_64" ]; then
+		make tinyconfig
+	elif [ "${TARGET_ARCH}" == "arm" ]; then
+		make bcm2835_defconfig
+	fi
+
+	./scripts/kconfig/merge_config.sh .config "../common-kernel.config"
+	./scripts/kconfig/merge_config.sh .config "../${TARGET_ARCH}-kernel.config"
+
+	if [ "${TARGET_ARCH}" == "arm" ]; then
+		make olddefconfig
+	fi
+
+	popd
+}
+
+function build_kernel {
+	pushd "${LINUX_DIR}"
+
+	make bzImage -j$(nproc)
+	make modules_prepare
+	make modules -j$(nproc)
+	make modules_install INSTALL_MOD_PATH=out
+
+	if [ "${TARGET_ARCH}" == "arm" ]; then
+		make dtbs
+	fi
+
+	popd
+}
+
+function get_busybox {
+	git clone --depth 1 --branch "${BUSYBOX_BRANCH}" "${BUSYBOX_GIT}" "${BUSYBOX_DIR}"
+}
+
+function build_busybox {
+	pushd "${BUSYBOX_DIR}"
+
+	make defconfig KBUILD_DEFCONFIG=../busybox.config 
+	make -j$(nproc)
+	make install
+
+	popd
+}
+
+function build_whistle_module {
+	pushd "${WHISTLE_MODULE_DIR}"
+	make KERNEL_DIR="${LINUX_DIR}" USE_DKMS=n
+	popd
+}
+
+function build_all {
+	# set CROSS_COMPILE and ARCH env variables
+	. "${TARGET_ARCH}-toolchain.mk"
+
+	if [ "${DOWNLOAD_KERNEL}" == "y" ]; then
+		get_kernel
+	fi
+
+	if [ "${BUILD_KERNEL}" == "y" ]; then
+		config_kernel
+		build_kernel
+	fi
+
+	if [ "${DOWNLOAD_BUSYBOX}" == "y" ]; then
+		get_busybox
+	fi
+
+	build_busybox
+
+	./mkinitrd
+
+	build_whistle_module
+}
+
+function print_help {
+	echo "---------------------------"
+	echo -e "available parameters:"
+	echo -e "-a | --arch <arch>\tchoose build architecture"
+	echo -e "-v | --version <ver>\tchoose kernel version, use 'host' for host version, last version is default"
+	echo -e "-n | --no-download\tdont download kernel, use ./linux directory, dont use with -v option"
+	echo -e "-h | --help\t\tprint help message"
+	echo
+}
+
+# parse command line arguments
+while [[ "$#" -gt 0 ]]; do
+	case $1 in
+		-a|--arch) export TARGET_ARCH="$2"; shift ;;
+		-v|--version) VERSION="$2"; shift ;;
+		-h|--help) print_help; exit 0 ;;
+		-n|--no-download) DOWNLOAD_KERNEL="n"; DOWNLOAD_BUSYBOX="n" ;;
+		*) echo "Unknown parameter passed: $1"; print_help; exit 1 ;;
+	esac
+	shift
+done
+
+# build kernel, busybox and whistle kernel module
+build_all
 
 echo "Well done"
