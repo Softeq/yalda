@@ -1,0 +1,12 @@
+menu "whistle driver"
+
+config YALDA_WHISTLE_DIR
+  string "whistle dir"
+  default "./components/usb-debug-whistle/subcomponents/kernel_module"
+
+config YALDA_WHISTLE_BUILD
+  bool "build"
+  default y
+
+endmenu
+

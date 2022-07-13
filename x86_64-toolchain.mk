@@ -1,2 +1,0 @@
-export ARCH=x86_64
-export CROSS_COMPILE=

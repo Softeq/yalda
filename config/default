@@ -1,0 +1,38 @@
+DOWNLOAD_KERNEL="y"
+DOWNLOAD_BUSYBOX="y"
+
+BUILD_KERNEL="y"
+BUILD_BUSYBOX="y"
+BUILD_WHISTLE="y"
+BUILD_ROOTFS="y"
+
+# Constants
+DFLT_KERNEL_GIT="git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
+BUSYBOX_GIT="git://busybox.net/busybox.git"
+
+#
+# Default configuration parameters
+#
+DFLT_KERNEL_CONFIG="${CONFIG_DIR}/config.kernel.last"
+DFLT_KERNEL_CONFIG="$(realpath ${DFLT_KERNEL_CONFIG})"
+DFLT_KERNEL_DEFCONFIG="tinyconfig"
+DFLT_KERNEL_VERSION="last"
+
+DFLT_KERNEL_DIR="${COMPONENTS_DIR}/linux"
+DFLT_KERNEL_DIR="$(realpath ${DFLT_KERNEL_DIR})"
+DFLT_KERNEL_BRANCH="master"
+DFLT_KERNEL_PATCHES_DIR="${PATCHES_DIR}/kernel"
+DFLT_KERNEL_SOURCE="dir"
+
+DFLT_BUSYBOX_DIR="${COMPONENTS_DIR}/busybox"
+DFLT_BUSYBOX_DIR="$(realpath ${DFLT_BUSYBOX_DIR})"
+DFLT_BUSYBOX_BRANCH="master"
+DFLT_BUSYBOX_CONFIG="${CONFIG_DIR}/busybox.config"
+DFLT_BUSYBOX_PATCHES_DIR="${PATCHES_DIR}/busybox"
+DFLT_BUSYBOX_SOURCE="dir"
+
+DFLT_ROOTFS_DIR="${COMPONENTS_DIR}/rootfs"
+DFLT_ROOTFS_DIR="$(realpath ${DFLT_ROOTFS_DIR})"
+DFLT_ROOTFS_OUT="$(realpath ${ROOT_DIR}/initrd.cpio.gz)"
+
+DFLT_WHISTLE_DIR="$(realpath ${COMPONENTS_DIR}/usb-debug-whistle/subcomponents/kernel_module)"

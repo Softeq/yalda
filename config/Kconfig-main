@@ -1,0 +1,28 @@
+mainmenu "Yalda configuration"
+
+config YALDA_DEBUG
+  bool "debug"
+
+choice YALDA_ARCH
+  prompt "Target"
+
+config YALDA_ARCH_X86_64
+  bool "x86_64"
+
+config YALDA_ARCH_ARM
+  bool "arm"
+
+endchoice
+
+config YALDA_CROSS_COMPILE
+  string "CROSS_COMPILE"
+  depends on YALDA_ARCH_ARM
+  default "arm-linux-gnueabihf-" if YALDA_ARCH_ARM
+
+source config/Kconfig-kernel
+source config/Kconfig-busybox
+source config/Kconfig-whistle
+source config/Kconfig-rootfs
+source config/Kconfig-qemu
+source config/Kconfig-gdb
+

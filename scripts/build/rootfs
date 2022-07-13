@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+set -e
+# set -x
+export YALDA_MODE="build"
+
+source "${ROOT_DIR}/scripts/env"
+
+source "${SCRIPTS_DIR}/utils"
+
+chdir "${ROOT_DIR}"
+
+function _install {
+	chdir "${YALDA_OUT_ROOTFS}"
+
+	find ./ | cpio -H newc -o | gzip -9 > "${YALDA_OUT}/initrd.cpio.gz"
+
+	ret
+}
+
+function _build {
+	if [ ! "${ROOTFS_BUILD}" == "y" ]; then
+		return
+	fi
+
+	rm -rf "${YALDA_OUT_ROOTFS}"
+	mkdir -pv "${YALDA_OUT_ROOTFS}"
+
+	chdir "${YALDA_OUT_ROOTFS}"
+
+	mkdir -pv {home,dev,proc,mnt/share,sys,tmp} > /dev/null
+
+	cp -r ${ROOTFS_DIR}/* ./
+	cp -r ${YALDA_OUT_KERNEL}/rootfs/* ./
+	cp -r ${YALDA_OUT_BUSYBOX}/rootfs/* ./
+	find "${YALDA_OUT_KERNEL}/rootfs" -depth -type f -o -type d | cpio -pamdu --quiet ./
+	
+	ret
+
+	_install
+}
+
+_build
+
+ret

@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+
+set -e
+# set -x
+export YALDA_MODE="build"
+
+source "${ROOT_DIR}/scripts/env"
+
+source "${SCRIPTS_DIR}/utils"
+
+chdir "${ROOT_DIR}"
+
+function _fetch {
+	if [ -d "${KERNEL_DIR}" ]; then
+		rm -rf "${KERNEL_DIR}"
+	fi
+
+	git clone -b "${KERNEL_BRANCH}" --depth 1 "${KERNEL_GIT}" "${KERNEL_DIR}"
+
+	# git -C "${KERNEL_DIR}" apply "${SCRIPTS_DIR}/kernel_scripts_gdb.patch"
+}
+
+function _patch {
+	chdir ${KERNEL_DIR}
+
+	QUILT_PATCHES=${KERNEL_PATCHES_DIR}
+	quilt unapplied >/dev/null 2>/dev/null && quilt push -a
+
+	ret
+}
+
+function _configure {
+	chdir "${KERNEL_DIR}"
+
+	echo "!!!!!!!!!!!!!!!!!!!!!!!"
+	echo "KERNEL_CONFIGURE_METHOD: ${KERNEL_CONFIGURE_METHOD}"
+	if [ "${KERNEL_CONFIGURE_METHOD}" == "defconfig" ]; then
+		make "${KERNEL_DEFCONFIG_PATH}"
+		./scripts/kconfig/merge_config.sh .config "${CONFIG_DIR}/common-kernel.config"
+		./scripts/kconfig/merge_config.sh .config "${CONFIG_DIR}/${ARCH}-kernel.config"
+	else
+		cp "${KERNEL_CONFIG}" "${KERNEL_DIR}/.config"
+	fi
+
+	make olddefconfig
+
+	ret
+}
+
+function _install {
+	rm -rf "${YALDA_OUT_KERNEL}"
+	mkdir -pv ${YALDA_OUT_KERNEL}/{rootfs/boot,dtb,boot}
+
+	chdir "${KERNEL_DIR}"
+
+	make INSTALL_MOD_PATH="${YALDA_OUT_KERNEL}/rootfs" modules_install
+	make INSTALL_PATH=${YALDA_OUT_KERNEL}/rootfs/boot install 
+	if [[ "${ARCH}" =~ ^arm[0-9]*$ ]]; then
+		make dtbs
+		cp arch/${ARCH}/boot/dts/*.dtb "${YALDA_OUT_KERNEL}/dtb"
+	fi
+
+	cp arch/${ARCH}/boot/*Image "${YALDA_OUT_KERNEL}/boot"
+	cp ./vmlinux "${YALDA_OUT_KERNEL}"
+
+	ret
+}
+
+function _build {
+	if [ ! "${KERNEL_BUILD}" == "y" ]; then
+		return
+	fi
+
+	if [ "${KERNEL_SOURCE}" == "git" ]; then
+		_fetch
+	fi
+
+	if [ "${KERNEL_CONFIGURE}" == "y" ]; then
+		_configure
+		# save last successfull .config
+		cp "${KERNEL_DIR}/.config" "${CONFIG_DIR}/kernel.config.last"
+	fi
+
+	if [ "${KERNEL_PATCH}" == "y" ]; then
+		_patch
+	fi
+
+	chdir "${KERNEL_DIR}"
+
+	make bzImage -j$(nproc)
+	make modules_prepare
+	make modules -j$(nproc)
+
+	ret
+
+	_install
+}
+
+_build
+
+ret

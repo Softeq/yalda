@@ -1,0 +1,3 @@
+# Patch enables debug symbols in .init* sections of kernel modules
+kernel_scripts_gdb.patch
+

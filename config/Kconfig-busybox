@@ -1,0 +1,40 @@
+menu "busybox"
+
+config YALDA_BUSYBOX_DIR
+  string "busybox dir"
+  default "./components/busybox"
+
+config YALDA_BUSYBOX_CONFIG
+  string "config"
+  default "./config/busybox.config"
+
+config YALDA_BUSYBOX_BUILD
+  bool "build"
+  default y
+  help
+    tiny userspace busybox
+
+choice
+  prompt "source"
+  depends on YALDA_BUSYBOX_BUILD
+
+config YALDA_BUSYBOX_FROM_GIT
+  bool "git"
+
+config YALDA_BUSYBOX_FROM_DIR
+  bool "dir"
+
+endchoice
+
+config YALDA_BUSYBOX_PATCH
+  bool "patch"
+  depends on YALDA_BUSYBOX_BUILD
+  default y
+
+config YALDA_BUSYBOX_PATCHES_DIR
+  string "patches dir"
+  default "./patches/busybox"
+  depends on CONFIG_YALDA_BUSYBOX_PATCH
+
+endmenu
+

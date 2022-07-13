@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+set -e
+# set -x
+export YALDA_MODE="build"
+
+source "${ROOT_DIR}/scripts/env"
+
+source "${SCRIPTS_DIR}/utils"
+
+chdir "${ROOT_DIR}"
+
+function _fetch {
+	if [ -d "${BUSYBOX_DIR}" ]; then
+		rm -rf "${BUSYBOX_DIR}"
+	fi
+	git clone --depth 1 --branch "${BUSYBOX_BRANCH}" "${BUSYBOX_GIT}" "${BUSYBOX_DIR}"
+}
+
+function _patch {
+	chdir "${BUSYBOX_DIR}"
+
+	QUILT_PATCHES="${BUSYBOX_PATCHES_DIR}"
+	quilt unapplied >/dev/null 2>/dev/null && quilt push -a
+
+	ret
+}
+
+function _install {
+	chdir "${BUSYBOX_DIR}"
+
+	make defconfig KBUILD_DEFCONFIG="${BUSYBOX_CONFIG}"
+	make -j$(nproc)
+	make install
+
+	rm -rf "${YALDA_OUT_BUSYBOX}"
+	mkdir -pv "${YALDA_OUT_BUSYBOX}/rootfs"
+	cp -r _install/* "${YALDA_OUT_BUSYBOX}/rootfs"
+
+	ret
+}
+
+function _build {
+	if [ ! "${BUSYBOX_BUILD}" == "y" ]; then
+		return
+	fi
+
+	if [ "${BUSYBOX_SOURCE}" == "git" ]; then
+		_fetch
+	fi
+
+	if [ "${BUSYBOX_PATCH}" ]; then
+		_patch
+	fi
+	
+	_install
+}
+
+_build
+
+ret

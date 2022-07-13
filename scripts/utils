@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+#
+# Silent working directory control
+#
+function chdir {
+    pushd "$1" >/dev/null 2>/dev/null
+}
+
+function ret {
+    popd >/dev/null 2>/dev/null
+}
+
+#
+# Safe realpath
+#
+function _realpath {
+    fname="$1"
+
+    if [ ! "${fname}" == "" ]; then
+        echo "$(realpath ${fname})"
+    fi
+}

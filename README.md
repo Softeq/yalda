@@ -1,12 +1,51 @@
 # Yet Another Linux Development Approach
 
+## Prepare environment
+Ubuntu:
+```
+$ sudo apt install kconfig-frontends
+```
+
+Others:
+```
+$ git clone https://github.com/jameswalmsley/kconfig-frontends
+$ cd kconfig-frontends
+$ ./bootstrap
+$ ./configure
+$ make -j$(nproc)
+$ sudo make install
+```
+
+## Configure YALDA
+- generate .config file
+```
+$ make munuconfig
+```
+
+- you can set environment variables by yourself:
+```
+$ export ROOTFS_OUT=/mnt/iniitrd.cpio.gz
+$ export KERNEL_DIR=/mnt/linux-5.14
+$ export KERNEL_SOURCE=git
+$ make build
+```
+
 ## Build components
-- call ./build
-- It support various of parameters.
-- Use ./build --version [version] or -v [version] for fetching specific kernel.
-- Use ./build --no-download or ./build -n for ommitting kernel and busybox download.
-- Use ./build --arch [arch] to build for specific target architecture.
-- At the moment [arch] can be x86_64 or arm
+- Build all components:
+```
+$ make build
+```
+
+- You can build separate component
+- You can pass env variables before or inside make build-* call
+```
+$ make build-kernel
+$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- build-kernel
+$ BUSYBOX_DIR=./new-busybox BUSYBOX_SOURCE=git make build-busybox
+$ make build-whistle
+$ make ROOTFS_OUT=/mnt/initrd.cpio.gz  build-rootfs
+$ ...
+```
 
 ## Quick start
 - call ./runqemu
