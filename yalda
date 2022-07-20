@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+export component="$1"
+export action="$2"
+
+source "${ROOT_DIR}/scripts/env"
+
+function get_conf_var {
+	local conf="$1"
+	local comp="${component}"
+	if [ ! "$2" == "" ]; then
+		comp="$2"
+	fi
+
+	local component_varname="${comp^^}_${conf^^}"
+	echo "${!component_varname}"
+}
+
+component_dir="$(get_conf_var dir)"
+component_git="$(get_conf_var git)"
+component_branch="$(get_conf_var branch)"
+component_source="$(get_conf_var source)"
+component_patch="$(get_conf_var patch)"
+component_patches_dir="$(get_conf_var patches_dir)"
+component_configure="$(get_conf_var configure)"
+component_build="$(get_conf_var build)"
+component_run="$(get_conf_var run)"
+
+component_out="$(get_conf_var out_${component} yalda)"
+
+# TODO: redesign rootfs output
+component_out_rootfs="${component_out}/rootfs"
+if [ "${component}" == "rootfs" ]; then
+	component_out_rootfs="${component_out}"
+fi
+
+function component_fetch {
+	if [ -d "${component_dir}" ]; then
+		rm -rf "${component_dir}"
+	fi
+
+	git clone -b "${component_branch}" --depth 1 "${component_git}" "${component_dir}"
+}
+
+function component_patch {
+	export QUILT_PATCHES=${component_patches_dir}
+	quilt unapplied >/dev/null 2>/dev/null && quilt push -a
+}
+
+function component_build {
+	if [ ! "${component_build}" == "y" ]; then
+		return
+	fi
+
+	if [ "${component_source}" == "git" ]; then
+		component_fetch
+	fi
+
+	if [ "${component_configure}" == "y" ]; then
+		_configure
+	fi
+
+	if [ "${component_patch}" == "y" ]; then
+		component_patch
+	fi
+
+	_build
+
+	rm -rf "${component_out}"
+	mkdir -pv "${component_out}" "${component_out_rootfs}"
+
+	_install
+}
+
+
+function component_run {
+	_run
+}
+
+function command_execute {
+	chdir "${component_dir}"
+
+	component_${action}
+
+	ret
+}
+
+command_execute

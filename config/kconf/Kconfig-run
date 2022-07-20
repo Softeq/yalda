@@ -1,0 +1,41 @@
+menu "run"
+
+config YALDA_RUN_EARLY_DEBUG
+  bool "early debug"
+  help
+    QEMU waits for debugger (-S QEMU opion)
+
+config YALDA_RUN_HOST_KERNEL
+  bool "host kernel"
+  help
+    Use host kernel instead of YALDA kernel component
+
+config YALDA_RUN_KERNEL_IMAGE_PATH
+  string "kernel"
+  depends on ! YALDA_RUN_HOST_KERNEL
+  default ./out/kernel/boot/bzImage if YALDA_ARCH_X86_64
+  default ./out/kernel/boot/zImage if YALDA_ARCH_ARM
+  help
+    Kernel image file path
+
+config YALDA_RUN_KERNEL_VMLINUX_PATH
+  string "vmlinux"
+  default ./out/kernel/vmlinux
+  help
+    Kernel vmlinux file path
+
+config YALDA_RUN_INITRD_PATH
+  string "initrd"
+  default YALDA_ROOTFS_OUT
+
+config YALDA_RUN_KERNEL_CMDLINE
+  string "cmdline"
+  default "rdinit=/sbin/init rw earlyprintk loglevel=8 console=ttyAMA0" if YALDA_ARCH_ARM
+  default "nokaslr, console=ttyS0" if YALDA_ARCH_X86_64
+  help
+    Kernel command line arguments
+
+source config/kconf/Kconfig-qemu
+source config/kconf/Kconfig-gdb
+
+endmenu

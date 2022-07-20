@@ -1,22 +1,28 @@
 menu "busybox"
 
 config YALDA_BUSYBOX_DIR
-  string "busybox dir"
+  string "directory"
   default "./components/busybox"
+  help
+    Busybox tree path
 
 config YALDA_BUSYBOX_CONFIG
   string "config"
-  default "./config/busybox.config"
+  default "./config/busybox/busybox.config"
+  help
+    Busybox defconfig file path
 
 config YALDA_BUSYBOX_BUILD
   bool "build"
   default y
   help
-    tiny userspace busybox
+    Build busybox
 
 choice
   prompt "source"
   depends on YALDA_BUSYBOX_BUILD
+  help
+    Source of busybox tree (git | directory)
 
 config YALDA_BUSYBOX_FROM_GIT
   bool "git"
@@ -30,11 +36,14 @@ config YALDA_BUSYBOX_PATCH
   bool "patch"
   depends on YALDA_BUSYBOX_BUILD
   default y
+  help
+    Apply busybox patches
 
 config YALDA_BUSYBOX_PATCHES_DIR
-  string "patches dir"
+  string "directory"
   default "./patches/busybox"
   depends on CONFIG_YALDA_BUSYBOX_PATCH
+  help
+    Path to directory with patches and series file
 
 endmenu
-

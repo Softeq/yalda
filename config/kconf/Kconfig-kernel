@@ -2,18 +2,20 @@ menu "kernel"
 
 config YALDA_KERNEL_DIR
   string "directory"
-  default "./components/linux"
+  default "./components/kernel"
   help
-    kernel source tree path
+    Kernel tree path
 
 config YALDA_KERNEL_BUILD
-	bool "build"
-	default y
-	help
-	  build
+  bool "build"
+  default y
+  help
+    Build kernel
 
 choice
   prompt "source"
+  help
+    Source of kernel tree ( git | directory )
 
 config YALDA_KERNEL_FROM_GIT
   bool "git"
@@ -30,16 +32,20 @@ config YALDA_KERNEL_VERSION
   depends on YALDA_KERNEL_BUILD && YALDA_KERNEL_FROM_GIT
   default "last"
   help
-    required kernel version (host | last | <version>)
+    Required kernel version (host | last | <version>)
 
 config YALDA_KERNEL_CONFIGURE
   bool "configure"
   depends on YALDA_KERNEL_BUILD
   default y
+  help
+    Perform kernel configure
 
 choice
   prompt "method"
   depends on YALDA_KERNEL_CONFIGURE
+  help
+    Kernel configuration methos (defconfig file | .config file)
 
 config YALDA_KERNEL_DEFCONFIG
   bool "defconfig"
@@ -51,24 +57,31 @@ endchoice
 
 config YALDA_KERNEL_CONFIG_PATH
   string "config"
-  default "./config/config.kernel.last"
+  default "./config/kernel/kernel.config.last"
   depends on YALDA_KERNEL_MANUAL_CONFIG
+  help
+    .config file path
 
 config YALDA_KERNEL_DEFCONFIG_PATH
   string "defconfig"
   default "tinyconfig" if YALDA_ARCH_X86_64
   default "bcm2835_defconfig" if YALDA_ARCH_ARM
   depends on YALDA_KERNEL_BUILD && YALDA_KERNEL_DEFCONFIG && ! YALDA_KERNEL_MANUAL_CONFIG
+  help
+    Defconfig name
 
 config YALDA_KERNEL_PATCH
-bool "patch"
-default y
-depends on YALDA_KERNEL_BUILD
+  bool "patch"
+  default y
+  depends on YALDA_KERNEL_BUILD
+  help
+    Apply kernel patches
 
 config YALDA_KERNEL_PATCHES_DIR
-string "patches dir"
-depends on YALDA_KERNEL_PATCH
-default "./patches/kernel"
+  string "patches dir"
+  depends on YALDA_KERNEL_PATCH
+  default "./patches/kernel"
+  help
+    Directory with patches and series file
 
 endmenu
-

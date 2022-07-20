@@ -28,93 +28,8 @@ source "${SCRIPTS_DIR}/utils"
 source "${CONFIG_DIR}/default"
 source "${ROOT_DIR}/.config"
 
-#
-# Helpers
-#
-function host_kernel_version {
-	echo "$(uname -r | cut -d- -f1 | cut -d. -f1,2)"
-}
-
-#
-# Set parameter [varname] based on direct kconfig value
-# - if variable [varname] is set - do nothing
-# - set [varname] to kconfig_varname value
-# - if kvonfig_varname was not set - [varname] = default value
-# if no kconfig varname was given:
-# -> kconfig_varname = CONFIG_YALDA_[varname]
-# if no default value varname (dflt_varname) was given:
-# -> dflt_varname = DFLT_[varname]
-#
-function set_param {
-    varname="$1"
-	echo "varname: ${varname}"
-	echo "varname value: ${!varname}"
-
-    dflt_varname="$2"
-    if [ "${dflt_varname}" == "" ]; then
-        dflt_varname="DFLT_${varname}"
-    fi
-
-    kconfig_varname="$3"
-    if [ "${kconfig_varname}" == "" ]; then
-        kconfig_varname="CONFIG_YALDA_${varname}"
-    fi
-
-	echo "kconfig_varname: ${kconfig_varname}"
-	echo "kconfig_val: ${!kconfig_varname}"
-	echo "dflt_varname: ${dflt_varname}"
-	echo "dflt_val: ${!dflt_varname}"
-
-    if [[ "${!varname}" == "" ]]; then
-        eval "export ${varname}=${!kconfig_varname}"
-        if [[ "${!varname}" == "" ]]; then
-            if [[ ! "${dflt_varname}" == "" ]]; then
-                eval "export ${varname}=${!dflt_varname}"
-            fi
-        fi
-    fi
-
-	echo "FINAL VALUE: ${!varname}"
-    export "${varname}"
-}
-
-#
-# Set parameter based on choice kconfig value
-# 
-#   set_param_choice varname config1 val1 config2 val2 ...
-# - if variable [varname] is set - do nothing
-# - if kconfig [config1] varname value = y:
-# - -> set variable [varname] to val1 
-# - if kconfig [config2] varname value = y:
-# - -> set variable [varname] to $val2 i
-# - ...
-#
-function set_param_choice {
-	varname="$1"
-	shift
-
-	if [[ ! ${!varname} == "" ]]; then
-		return
-	fi
-
-	while [ 1 ]; do
-		cfg_name="$1"
-		if [[ ${cfg_name} == "" ]]; then
-			return
-		fi
-		if [[ ${!cfg_name} == "y" ]]; then
-			eval "export ${varname}=$2"
-			break
-		fi
-		shift
-		shift
-	done
-}
-
 DFLT_YES="y"
 DFLT_NO="n"
-
-chdir "${ROOT_DIR}"
 
 #
 # Common parameters
@@ -124,146 +39,30 @@ set_param_choice ARCH CONFIG_YALDA_ARCH_X86_64 x86_64 CONFIG_YALDA_ARCH_ARM arm
 
 set_param CROSS_COMPILE
 if [ "${CROSS_COMPILE}" == "" ]; then
-	source "${CONFIG_DIR}/${ARCH}-toolchain.mk"
+	source "${CONFIG_DIR}/arch/${ARCH}/toolchain.mk"
 fi
 
 set_param KERNEL_DIR
-export KERNEL_DIR="$(_realpath ${KERNEL_DIR})"
 set_param BUSYBOX_DIR
-export BUSYBOX_DIR="$(_realpath ${BUSYBOX_DIR})"
+set_param WHISTLE_DIR
+set_param ROOTFS_DIR
 
-#
-# Build parameters
-#
-function kernel_set_branch {
-	version="$1"
-	local BRANCH="v${CONFIG_YALDA_KERNEL_VERSION}"
-	if   [ "${version}" == "host" ]; then
-		BRANCH="v$(host_kernel_version)"
-	elif [ "${version}" == "last" ]; then
-		BRANCH="${DFLT_KERNEL_BRANCH}"
-	fi
+KERNEL_DIR="$(_realpath ${KERNEL_DIR})"
+BUSYBOX_DIR="$(_realpath ${BUSYBOX_DIR})"
+WHISTLE_DIR="$(_realpath ${WHISTLE_DIR})"
+ROOTFS_DIR="$(_realpath ${ROOTFS_DIR})"
 
-	set_param KERNEL_BRANCH BRANCH
-}
+component_scripts_dir="${SCRIPTS_DIR}/${component}"
+component_env_file="${component_scripts_dir}/env"
 
-# Set branch name based on required kernel version
-function set_env_build {
-	# Kernel parameters
-	set_param KERNEL_BUILD DFLT_NO
-	set_param KERNEL_PATCH DFLT_NO
-	set_param KERNEL_PATCHES_DIR
-	set_param KERNEL_CONFIGURE DFLT_NO
-	set_param KERNEL_CONFIG
-	
-	set_param KERNEL_DEFCONFIG
-	set_param KERNEL_DEFCONFIG_PATH
-	set_param KERNEL_VERSION
-	set_param KERNEL_GIT
+set_param RUN_HOST_KERNEL
+set_param RUN_KERNEL_IMAGE_PATH
+set_param RUN_KERNEL_VMLINUX_PATH
+set_param RUN_INITRD_PATH
+set_param RUN_KERNEL_CMDLINE
 
-	set_param_choice KERNEL_SOURCE CONFIG_YALDA_KERNEL_FROM_GIT "git" CONFIG_YALDA_KERNEL_FROM_DIR "dir"
-	set_param_choice KERNEL_CONFIGURE_METHOD CONFIG_YALDA_KERNEL_MANUAL_CONFIG "manual" CONFIG_YALDA_KERNEL_DEFCONFIG "defconfig"
-
-	kernel_set_branch KERNEL_VERSION
-
-	KERNEL_CONFIG="$(_realpath ${KERNEL_CONFIG})"
-	KERNEL_PATCHES_DIR="$(_realpath $KERNEL_PATCHES_DIR)";
-
-	# Busybox parameters
-	set_param BUSYBOX_BUILD DFLT_NO
-	set_param BUSYBOX_PATCH DFLT_NO
-	set_param BUSYBOX_CONFIG DFLT_NO
-	set_param BUSYBOX_BRANCH
-	set_param BUSYBOX_PATCHES_DIR
-	set_param_choice BUSYBOX_SOURCE CONFIG_YALDA_BUSYBOX_FROM_GIT "git" CONFIG_YALDA_BUSYBOX_FROM_DIR "dir"
-
-	BUSYBOX_CONFIG=$(_realpath ${BUSYBOX_CONFIG})
-
-	# Rootfs parameters
-	set_param ROOTFS_BUILD DFLT_NO
-	set_param ROOTFS_OUT
-	set_param ROOTFS_DIR
-
-	ROOTFS_OUT="$(_realpath ${ROOTFS_OUT})"
-	ROOTFS_DIR="$(_realpath ${ROOTFS_DIR})"
-
-	# Whistle module parameters
-	set_param WHISTLE_BUILD
-	set_param WHISTLE_DIR
-
-	WHISTLE_DIR="$(_realpath ${WHISTLE_DIR})"
-}
-
-#
-# Run parameters
-#
-function set_env_run {
-	# QEMU parameters
-	set_param QEMU_MEM
-	set_param QEMU_ROOTFS
-	set_param QEMU_KERNEL_CMDLINE
-
-	# GDB parameters
-	set_param GDB_SCRIPT
-	GDB_SCRIPT="$(_realpath ${GDB_SCRIPT})"
-
-	set_param GDB_PARAMS
-}
-
-#
-# Debug
-#
-function yalda_debug {
-	if [ "${YALDA_DEBUG}" == "y" ]; then
-		echo "$@"
-	fi
-}
-
-function print_env {
-	yalda_debug "ARCH: ${ARCH}"
-	if [ "${CROSS_COMPILE}" == "" ]; then
-		yalda_debug "CROSS_COMPILE: ${CROSS_COMPILE}"
-	fi
-
-	yalda_debug "KERNEL_DIR: ${KERNEL_DIR}"
-	yalda_debug "KERNEL_BUILD: ${KERNEL_BUILD}"
-	yalda_debug "KERNEL_SOURCE: ${KERNEL_SOURCE}"
-	if [ "${KERNEL_SOURCE}" == "git" ]; then
-		yalda_debug "KERNEL_VERSION: ${KERNEL_VERSION}"
-		yalda_debug "KERNEL_BRANCH: ${KERNEL_BRANCH}"
-	fi
-
-	yalda_debug "KERNEL_CONFIGURE: ${KERNEL_CONFIGURE}"
-	if [ "${KERNEL_CONFIGURE}" == "y" ]; then
-		yalda_debug "KERNEL_CONFIGURE_METHOD: ${KERNEL_CONFIGURE_METHOD}"
-		if [ "${KERNEL_CONFIGURE_METHOD}" == "defconfig" ]; then
-			yalda_debug "KERNEL_DEFCONFIG: ${KERNEL_DEFCONFIG}"
-		else
-			yalda_debug "KERNEL_CONFIG: ${KERNEL_CONFIG}"
-		fi
-	fi
-
-	yalda_debug "BUSYBOX DIR: ${BUSYBOX_DIR}"
-	yalda_debug "BUSYBOX_BUILD: ${BUSYBOX_BUILD}"
-	yalda_debug "BUSYBOX_SOURCE: ${BUSYBOX_SOURCE}"
-	if [ "${BUSYBOX_SOURCE}" == "git" ]; then
-		yalda_debug "BUSYBOX_BRANCH: ${BUSYBOX_BRANCH}"
-	fi
-	yalda_debug "BUSYBOX_CONFIG: ${BUSYBOX_CONFIG}"
-
-	yalda_debug "ROOTFS_DIR: ${ROOTFS_DIR}"
-	yalda_debug "ROOTFS_OUT: ${ROOTFS_OUT}"
-
-	yalda_debug "WHISTLE_BUILD: ${WHISTLE_BUILD}"
-	yalda_debug "WHISTLE_DIR: ${WHISTLE_DIR}"
-}
-
-if [ "${YALDA_MODE}" == "build" ]; then
-	set_env_build
-elif [ "${YALDA_MODE}" == "run" ]; then
-	set_env_run
-fi
-
-ret
-
-print_env
+export RUN_KERNEL_IMAGE_PATH="$(_realpath ${RUN_KERNEL_IMAGE_PATH})"
+export RUN_KERNEL_VMLINUX_PATH="$(_realpath ${RUN_KERNEL_VMLINUX_PATH})"
+export RUN_INITRD_PATH="$(_realpath ${RUN_INITRD_PATH})"
+source "${component_env_file}"
+source ${component_scripts_dir}/${action}

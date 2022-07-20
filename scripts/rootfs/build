@@ -1,0 +1,18 @@
+function _build {
+	true
+}
+
+function _install {
+	chdir "${YALDA_OUT_ROOTFS}"
+
+	mkdir -pv {home,dev,proc,mnt/share,sys,tmp} > /dev/null
+
+	cp -r ${ROOTFS_DIR}/* ./
+	cp -r ${YALDA_OUT_KERNEL}/rootfs/* ./
+	cp -r ${YALDA_OUT_BUSYBOX}/rootfs/* ./
+	find "${YALDA_OUT_KERNEL}/rootfs" -depth -type f -o -type d | cpio -pamdu --quiet ./
+	find . | cpio -H newc -o | gzip -9 > "${ROOTFS_OUT}"
+
+	ret
+}
+

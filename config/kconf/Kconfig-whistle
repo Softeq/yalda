@@ -1,0 +1,17 @@
+menu "whistle"
+depends on YALDA_ARCH_X86_64
+
+config YALDA_WHISTLE_DIR
+  string "directory"
+  default "./components/whistle/subcomponents/kernel_module"
+  help
+    Path to whistle driver source tree
+
+config YALDA_WHISTLE_BUILD
+  bool "build"
+  default y
+  help
+    Build whistle driver
+
+endmenu
+

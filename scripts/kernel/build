@@ -1,0 +1,43 @@
+function _configure {
+	if [ "${KERNEL_CONFIGURE_METHOD}" == "defconfig" ]; then
+		make "${KERNEL_DEFCONFIG_PATH}"
+		./scripts/kconfig/merge_config.sh .config "${CONFIG_DIR}/kernel/kernel.config.common"
+		./scripts/kconfig/merge_config.sh .config "${CONFIG_DIR}/arch/${ARCH}/kernel.config"
+	else
+		cp "${KERNEL_CONFIG_PATH}" "${KERNEL_DIR}/.config"
+	fi
+
+	make olddefconfig
+
+	# save last successfull .config
+	cp .config "${CONFIG_DIR}/kernel.config.last"
+}
+
+function _build {
+	echo "ARCH: ${ARCH}"
+	echo "CROSS_COMPILE: ${CROSS_COMPILE}"
+
+	make bzImage -j$(nproc)
+	make modules_prepare
+	make modules -j$(nproc)
+
+	if [[ "${ARCH}" =~ ^arm[0-9]*$ ]]; then
+		make dtbs
+	fi
+
+	make scripts_gdb -j$(nproc)
+}
+
+function _install {
+	mkdir -pv ${YALDA_OUT_KERNEL}/{dtb,boot}
+	make INSTALL_MOD_PATH="${YALDA_OUT_KERNEL}/rootfs" modules_install
+
+	if [[ "${ARCH}" =~ ^arm[0-9]*$ ]]; then
+		cp arch/${ARCH}/boot/dts/*.dtb "${YALDA_OUT_KERNEL}/dtb"
+	fi
+
+	cp arch/${ARCH}/boot/*Image "${YALDA_OUT_KERNEL}/boot"
+	cp ./vmlinux "${YALDA_OUT_KERNEL}"
+	cp -r ./vmlinux ./vmlinux-gdb.py ./scripts "${YALDA_OUT_KERNEL}"
+}
+

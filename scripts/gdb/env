@@ -1,0 +1,16 @@
+set_param GDB_HOST_KERNEL
+set_param GDB_VMLINUX
+set_param GDB_SCRIPT
+set_param GDB_PARAMS
+
+if [ "${GDB_HOST_KERNEL}" == "y" ]; then
+    HOST_KERNEL_PATH="$(_realpath /boot/vmlinuz)"
+    GDB_VMLINUX="${YALDA_OUT}/vmlinuz-gdb"
+
+    sudo cp "${HOST_KERNEL_PATH}" "${GDB_VMLINUX}"
+    sudo chown ${USER} "${GDB_VMLINUX}"
+    chmod +rwx "${GDB_VMLINUX}"
+fi
+
+export GDB_VMLINUX="$(_realpath ${GDB_VMLINUX)"
+export GDB_SCRIPT="$(_realpath ${GDB_SCRIPT})"

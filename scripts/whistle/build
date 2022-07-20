@@ -1,0 +1,9 @@
+function _build {
+	echo "KERNEL_DIR: ${KERNEL_DIR}"
+	make USE_DKMS=n
+}
+
+function _install {
+	cp ${WHISTLE_DIR}/*.ko "${YALDA_OUT_WHISTLE}"
+}
+
