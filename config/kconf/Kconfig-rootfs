@@ -1,13 +1,13 @@
-menu "rootfs"
-
-config YALDA_ROOTFS_BUILD
+menuconfig YALDA_ROOTFS_BUILD
   bool "build"
   default y
   help
     build rootfs initrd image
 
+if YALDA_ROOTFS_BUILD
+
 config YALDA_ROOTFS_DIR
-  string "directory"
+  string "Work directory"
   depends on YALDA_ROOTFS_BUILD
   default "./components/rootfs"
   help
@@ -27,4 +27,4 @@ config YALDA_ROOTFS_ADDITIONAL
   help
     Path to additional rootfs directory with configs, binaries etc
 
-endmenu
+endif #YALDA_ROOTFS_BUILD
