@@ -21,6 +21,7 @@ config YALDA_BUSYBOX_FROM_GIT
   bool "git"
   help
     If YALDA_BUSYBOX_DIR is empty the system will put sources there
+  select YALDA_BUSYBOX_CONFIGURE
 
 config YALDA_BUSYBOX_FROM_DIR
   bool "dir"
@@ -34,6 +35,14 @@ config YALDA_BUSYBOX_CONFIG
   default "./config/busybox/busybox.config"
   help
     Busybox defconfig file path
+
+config YALDA_BUSYBOX_CONFIGURE
+  bool "configure"
+  depends on YALDA_BUSYBOX_BUILD
+  default y
+  help
+    Perform configure
+
 
 config YALDA_BUSYBOX_PATCH
   bool "Patch"

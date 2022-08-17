@@ -29,7 +29,7 @@ function _run {
 
     if [ "${ARCH}" == "arm" ]; then
         params+=" -M ${QEMU_MACHINE} -cpu ${QEMU_CPU} -smp 4 -dtb ${QEMU_DTB_PATH}"
-    elif [ "${ARCH}" == "x86_64" ]; then
+    elif [ "${ARCH}" == "x86_64" ] || [ "${ARCH}" == "x86" ] ; then
         params+=" ${kvm}"
         params+=" -fsdev local,id=home_dev,path=home,security_model=none -device virtio-9p-pci,fsdev=home_dev,mount_tag=host_home"
         params+=" -fsdev local,id=share_dev,path=./,security_model=none -device virtio-9p-pci,fsdev=share_dev,mount_tag=host_share"

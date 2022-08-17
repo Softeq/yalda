@@ -38,7 +38,6 @@ function component_fetch {
 	if [ -d "${component_dir}" ]; then
 		rm -rf "${component_dir}"
 	fi
-
 	git clone -b "${component_branch}" --depth 1 "${component_git}" "${component_dir}"
 }
 
@@ -55,6 +54,13 @@ function component_build {
 	if [ "${component_source}" == "git" ]; then
 		component_fetch
 	fi
+
+	if [ ! -d "${component_dir}" ]; then
+		echo "WARNING! ${component_dir} does not exist, skipping"
+		exit 1
+	fi
+
+	chdir "${component_dir}"
 
 	if [ "${component_configure}" == "y" ]; then
 		_configure
@@ -77,12 +83,15 @@ function component_run {
 	_run
 }
 
-function command_execute {
+function component_clean {
 	chdir "${component_dir}"
+	_clean
+}
 
+function command_execute {
 	component_${action}
 
-	ret
+	return
 }
 
 command_execute

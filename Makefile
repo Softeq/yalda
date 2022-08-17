@@ -66,3 +66,9 @@ run-gdb:
 
 clean:
 	rm -rf .config* 2>/dev/null
+
+cleanall:
+	${yalda_exe} kernel clean
+	${yalda_exe} busybox clean
+	${yalda_exe} whistle clean
+	rm -rf .config* 2>/dev/null

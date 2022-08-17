@@ -19,7 +19,7 @@ $ sudo make install
 ## Configure YALDA
 - generate .config file
 ```
-$ make munuconfig
+$ make menuconfig
 ```
 
 - you can set environment variables by yourself:
@@ -48,13 +48,16 @@ $ ...
 ```
 
 ## Quick start
-- call ./runqemu
-- run gdb (i.e ./rungdb)
+- call `make run-qemu`
+- run gdb (i.e `make run-gdb`)
 - attach the kernel via ```target remote :1234```
 - add breakpoint ```b do_init_module```
 - load symbols ```lx-symbols <PATH TO YOUR MODULE>```
 - add breakpoint to you module functions. (make sure __init attribure is not used for your module init function)
 - enjoy
+
+Also you can use the current host kernel: you need to select `CONFIG_YALDA_RUN_HOST_KERNEL` (`run` - `host kernel` in menuconfig).
+Then run `make run-qemu` and `make run-gdb`.
 
 ## Description
 See scripts please. It is easy

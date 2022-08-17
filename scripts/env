@@ -35,7 +35,14 @@ DFLT_NO="n"
 # Common parameters
 #
 set_param YALDA_DEBUG
-set_param_choice ARCH CONFIG_YALDA_ARCH_X86_64 x86_64 CONFIG_YALDA_ARCH_ARM arm
+set_param_choice ARCH CONFIG_YALDA_ARCH_ARM arm
+if [ "${CONFIG_YALDA_ARCH_X86}" == "y" ]; then
+    if [ "${CONFIG_YALDA_64BIT}" == "y" ]; then
+        ARCH=x86_64
+    else
+        ARCH=x86
+    fi
+fi
 
 set_param CROSS_COMPILE
 if [ "${CROSS_COMPILE}" == "" ]; then
@@ -46,11 +53,18 @@ set_param KERNEL_DIR
 set_param BUSYBOX_DIR
 set_param WHISTLE_DIR
 set_param ROOTFS_DIR
+set_param WHISTLE_BUILD
 
 KERNEL_DIR="$(_realpath ${KERNEL_DIR})"
 BUSYBOX_DIR="$(_realpath ${BUSYBOX_DIR})"
 WHISTLE_DIR="$(_realpath ${WHISTLE_DIR})"
 ROOTFS_DIR="$(_realpath ${ROOTFS_DIR})"
+
+if [ ! -d "${WHISTLE_DIR}" ] && [ ${WHISTLE_BUILD} == "y" ]; then
+    echo "WARNING! Directory does not exist, propably you need to fetch submodule:"
+    echo "git fetch --recurse-submodules"
+    exit 1
+fi
 
 component_scripts_dir="${SCRIPTS_DIR}/${component}"
 component_env_file="${component_scripts_dir}/env"

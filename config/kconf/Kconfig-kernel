@@ -70,6 +70,7 @@ config YALDA_KERNEL_CONFIG_PATH
 config YALDA_KERNEL_DEFCONFIG_PATH
   string "defconfig"
   default "tinyconfig" if YALDA_ARCH_X86_64
+  default "tinyconfig" if YALDA_ARCH_X86
   default "bcm2835_defconfig" if YALDA_ARCH_ARM
   depends on YALDA_KERNEL_DEFCONFIG && ! YALDA_KERNEL_MANUAL_CONFIG
   help

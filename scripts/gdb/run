@@ -16,6 +16,7 @@ function _run {
 	if [ "${RUN_HOST_KERNEL}" == "y" ]; then
 		export vmlinux="${YALDA_OUT_KERNEL}/vmlinuz"
 		sudo cp /boot/vmlinuz "${vmlinux}"
+		sudo chmod +r "${vmlinux}"
 	fi
 
 	pushd "${YALDA_OUT_KERNEL}"
