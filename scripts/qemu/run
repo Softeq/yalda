@@ -12,15 +12,8 @@ function _run {
     local gdb_addr="tcp::1234"
 
     if [ "${RUN_HOST_KERNEL}" == "y" ]; then
-        export RUN_INITRD_PATH="./initrd.img"
-        sudo cp /boot/initrd.img "${RUN_INITRD_PATH}"
-
-        export RUN_KERNEL_IMAGE_PATH="./vmlinuz"
-        sudo cp /boot/vmlinuz "${RUN_KERNEL_IMAGE_PATH}"
-        sudo chown ${USER}:${USER} "${RUN_KERNEL_IMAGE_PATH}"
-        sudo chmod 777 "${RUN_KERNEL_IMAGE_PATH}"
-        sudo chown ${USER}:${USER} "${RUN_VMLINUX_PATH}"
-        sudo chmod 777 "${RUN_VMLINUX_PATH}"
+        export RUN_INITRD_PATH="${YALDA_OUT_KERNEL}/initrd.img"
+        export RUN_KERNEL_IMAGE_PATH="${YALDA_OUT_KERNEL}/vmlinuz"
     fi
 
     local params="-kernel ${RUN_KERNEL_IMAGE_PATH} -initrd ${RUN_INITRD_PATH}"

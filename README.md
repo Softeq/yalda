@@ -58,6 +58,8 @@ $ ...
 
 Also you can use the current host kernel: you need to select `CONFIG_YALDA_RUN_HOST_KERNEL` (`run` - `host kernel` in menuconfig).
 Then run `make run-qemu` and `make run-gdb`.
+Please note that you need to set `YALDA_KERNEL_VMLINUX_PATH` to your vmlinux path. Propably you will also need to
+install a kernel debug symbols package for your distribution.
 
 ## Description
 See scripts please. It is easy

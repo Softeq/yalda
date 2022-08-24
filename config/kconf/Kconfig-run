@@ -34,6 +34,7 @@ config YALDA_RUN_KERNEL_CMDLINE
   default "rdinit=/sbin/init rw earlyprintk loglevel=8 console=ttyAMA0" if YALDA_ARCH_ARM
   default "nokaslr, console=ttyS0" if YALDA_ARCH_X86_64
   default "nokaslr, console=ttyS0" if YALDA_ARCH_X86
+  default "nokaslr, console=ttyS0, rdinit=/bin/sh" if YALDA_RUN_HOST_KERNEL
   help
     Kernel command line arguments
 

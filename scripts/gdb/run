@@ -13,11 +13,6 @@ function _run {
 	fi
 
 	export vmlinux="${RUN_KERNEL_VMLINUX_PATH}"
-	if [ "${RUN_HOST_KERNEL}" == "y" ]; then
-		export vmlinux="${YALDA_OUT_KERNEL}/vmlinuz"
-		sudo cp /boot/vmlinuz "${vmlinux}"
-		sudo chmod +r "${vmlinux}"
-	fi
 
 	pushd "${YALDA_OUT_KERNEL}"
 	eval "${gdb_exe} --nx -iex \"set auto-load safe-path /\" --tui ${vmlinux}"

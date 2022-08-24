@@ -36,8 +36,28 @@ function _install {
 		cp arch/${ARCH}/boot/dts/*.dtb "${YALDA_OUT_KERNEL}/dtb"
 	fi
 
-	cp arch/${ARCH}/boot/*Image "${YALDA_OUT_KERNEL}/boot"
-	cp ./vmlinux "${YALDA_OUT_KERNEL}"
-	cp -r ./vmlinux ./vmlinux-gdb.py ./scripts "${YALDA_OUT_KERNEL}"
+	set_param KERNEL_FROM_HOST
+	if [ "${KERNEL_FROM_HOST}" == "y" ]; then
+		echo "Using host kernel, $(pwd)"
+		export RUN_INITRD_PATH="${YALDA_OUT_KERNEL}/initrd.img"
+		sudo cp /boot/initrd.img "${RUN_INITRD_PATH}"
+
+		export RUN_KERNEL_IMAGE_PATH="${YALDA_OUT_KERNEL}/vmlinuz"
+		sudo cp /boot/vmlinuz "${RUN_KERNEL_IMAGE_PATH}"
+		sudo chown ${USER}:${USER} "${RUN_KERNEL_IMAGE_PATH}"
+		sudo chmod 777 "${RUN_KERNEL_IMAGE_PATH}"
+
+        export vmlinux="${RUN_KERNEL_VMLINUX_PATH}"
+        set_param KERNEL_VMLINUX_PATH
+        export vmlinux="${YALDA_OUT_KERNEL}/vmlinux"
+        sudo cp ${KERNEL_VMLINUX_PATH} "${vmlinux}"
+        sudo chmod +r "${vmlinux}"
+
+		return
+	else
+		cp arch/${ARCH}/boot/*Image "${YALDA_OUT_KERNEL}/boot"
+		cp ./vmlinux "${YALDA_OUT_KERNEL}"
+		cp -r ./vmlinux ./vmlinux-gdb.py ./scripts "${YALDA_OUT_KERNEL}"
+	fi
 }
 

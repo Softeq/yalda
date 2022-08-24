@@ -31,6 +31,14 @@ config YALDA_KERNEL_FROM_DIR
 
 endchoice
 
+#TODO default?
+if YALDA_KERNEL_FROM_HOST
+config YALDA_KERNEL_VMLINUX_PATH
+  string "vmlinux"
+  help
+    vmlinux file path
+endif #YALDA_KERNEL_FROM_HOST
+
 if !YALDA_KERNEL_FROM_HOST
 
 config YALDA_KERNEL_VERSION
