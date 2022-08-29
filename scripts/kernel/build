@@ -38,9 +38,7 @@ function _install {
 
 	set_param KERNEL_FROM_HOST
 	if [ "${KERNEL_FROM_HOST}" == "y" ]; then
-		echo "Using host kernel, $(pwd)"
-		export RUN_INITRD_PATH="${YALDA_OUT_KERNEL}/initrd.img"
-		sudo cp /boot/initrd.img "${RUN_INITRD_PATH}"
+		echo "Using host kernel"
 
 		export RUN_KERNEL_IMAGE_PATH="${YALDA_OUT_KERNEL}/vmlinuz"
 		sudo cp /boot/vmlinuz "${RUN_KERNEL_IMAGE_PATH}"
