@@ -1,0 +1,21 @@
+set_param QEMU_HOST_KERNEL DFLT_NO
+set_param QEMU_KERNEL_PATH
+set_param QEMU_KERNEL_CMDLINE
+set_param QEMU_INITRD_PATH
+set_param QEMU_DTB_PATH
+set_param QEMU_MEM
+
+set_param QEMU_MACHINE
+set_param QEMU_CPU
+
+if [ "${QEMU_HOST_KERNEL}" == "y" ]; then 
+    HOST_KERNEL_PATH="$(_realpath /boot/vmlinuz)"
+    QEMU_KERNEL_PATH="${YALDA_OUT_KERNEL}/vmlinuz-qemu"
+    sudo cp "${HOST_KERNEL_PATH}" "${QEMU_KERNEL_PATH}"
+    sudo chown ${USER} "${QEMU_KERNEL_PATH}"
+    chmod +rwx "${QEMU_KERNEL_PATH}"
+fi
+
+export QEMU_KERNEL_PATH="$(_realpath ${QEMU_KERNEL_PATH})"
+export QEMU_INITRD_PATH="$(_realpath ${QEMU_INITRD_PATH})"
+export QEMU_DTB_PATH="$(_realpath ${QEMU_DTB_PATH})"

@@ -1,1 +1,0 @@
-gdb --nx -iex "set auto-load safe-path /" -x kernel_gdb_script --tui linux/vmlinux

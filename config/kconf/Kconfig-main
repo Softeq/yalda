@@ -1,0 +1,37 @@
+mainmenu "Yalda configuration"
+
+choice YALDA_ARCH
+  prompt "Target"
+  help
+    Target architecture
+
+config YALDA_ARCH_X86
+  bool "x86"
+
+config YALDA_ARCH_ARM
+  bool "arm"
+
+endchoice
+
+config YALDA_64BIT
+  bool "64 bit"
+  default y
+  help
+    Enable 64 bit support
+
+config YALDA_CROSS_COMPILE
+  string "CROSS_COMPILE"
+  depends on YALDA_ARCH_ARM
+  default "arm-linux-gnueabihf-" if YALDA_ARCH_ARM
+  help
+    Cross compilation toolchain
+
+source config/kconf/Kconfig-build
+source config/kconf/Kconfig-run
+
+config YALDA_VERBOSE
+  bool "Verbose output"
+  default n
+  help
+    Enable additional log prints
+

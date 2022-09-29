@@ -1,0 +1,3 @@
+set_param WHISTLE_BUILD
+set_param WHISTLE_DIR
+WHISTLE_DIR="$(_realpath ${WHISTLE_DIR})"

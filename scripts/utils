@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+
+#
+# Silent working directory control
+#
+function chdir {
+    pushd "$1" >/dev/null 2>/dev/null || true;
+}
+
+function ret {
+    popd >/dev/null 2>/dev/null
+}
+
+#
+# Safe realpath
+#
+function _realpath {
+    fname="$1"
+
+    if [ ! "${fname}" == "" ]; then
+        echo "$(realpath ${fname})"
+    fi
+}
+
+function host_kernel_version {
+	echo "$(uname -r | cut -d- -f1 | cut -d. -f1,2)"
+}
+
+#
+# Set parameter [varname] based on direct kconfig value
+# - if variable [varname] is set - do nothing
+# - set [varname] to kconfig_varname value
+# - if kvonfig_varname was not set - [varname] = default value
+# if no kconfig varname was given:
+# -> kconfig_varname = CONFIG_YALDA_[varname]
+# if no default value varname (dflt_varname) was given:
+# -> dflt_varname = DFLT_[varname]
+#
+function set_param {
+    varname="$1"
+
+    dflt_varname="$2"
+    if [ "${dflt_varname}" == "" ]; then
+        dflt_varname="DFLT_${varname}"
+    fi
+
+    kconfig_varname="$3"
+    if [ "${kconfig_varname}" == "" ]; then
+        kconfig_varname="CONFIG_YALDA_${varname}"
+    fi
+
+    if [[ "${!varname}" == "" ]]; then
+        eval "export ${varname}='${!kconfig_varname}'"
+        if [[ "${!varname}" == "" ]]; then
+            if [[ ! "${dflt_varname}" == "" ]]; then
+                eval "export ${varname}='${!dflt_varname}'"
+            fi
+        fi
+    fi
+}
+
+#
+# Set parameter based on choice kconfig value
+# 
+#   set_param_choice varname config1 val1 config2 val2 ...
+# - if variable [varname] is set - do nothing
+# - if kconfig [config1] varname value = y:
+# - -> set variable [varname] to val1 
+# - if kconfig [config2] varname value = y:
+# - -> set variable [varname] to $val2 i
+# - ...
+#
+function set_param_choice {
+	varname="$1"
+	shift
+
+	if [[ ! ${!varname} == "" ]]; then
+		return
+	fi
+
+	while [ 1 ]; do
+		cfg_name="$1"
+		if [[ ${cfg_name} == "" ]]; then
+			return
+		fi
+		if [[ ${!cfg_name} == "y" ]]; then
+			eval "export ${varname}='$2'"
+			break
+		fi
+		shift
+		shift
+	done
+}
+
+#
+# Debug
+#
+function yalda_debug {
+	if [ "${YALDA_DEBUG}" == "y" ]; then
+		echo "$@"
+	fi
+}

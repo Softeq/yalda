@@ -1,0 +1,19 @@
+set -x
+
+function _run {
+	local gdb_params='--nx -iex "set auto-load safe-path /"'
+
+	if [ "${ARCH}" == "x86_64" ]; then
+		local gdb_exe="gdb"
+	elif [ "${ARCH}" == "arm" ]; then
+		local gdb_exe="gdb-multiarch"
+	else
+		echo "Unsupported architecture: ${ARCH}"
+		exit 1
+	fi
+
+	export vmlinux="${RUN_KERNEL_VMLINUX_PATH}"
+
+	pushd "${YALDA_OUT_KERNEL}"
+	eval "${gdb_exe} --nx -iex \"set auto-load safe-path /\" --tui ${vmlinux}"
+}

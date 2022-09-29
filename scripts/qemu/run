@@ -1,0 +1,40 @@
+set -x
+
+function _run {
+    mkdir -p home
+    local kvm=
+
+    if [ -c /dev/kvm ]; then
+        kvm="-enable-kvm"
+    fi
+
+    local qemu_exe="qemu-system-${ARCH}"
+    local gdb_addr="tcp::1234"
+
+    if [ "${RUN_HOST_KERNEL}" == "y" ]; then
+        export RUN_KERNEL_IMAGE_PATH="${YALDA_OUT_KERNEL}/vmlinuz"
+    fi
+
+    local params="-kernel ${RUN_KERNEL_IMAGE_PATH} -initrd ${RUN_INITRD_PATH}"
+    params+=" -append \"${RUN_KERNEL_CMDLINE}\""
+    params+=" -m ${QEMU_MEM}G -nographic -gdb ${gdb_addr} -usb"
+
+    if [ "${ARCH}" == "arm" ]; then
+        params+=" -M ${QEMU_MACHINE} -cpu ${QEMU_CPU} -smp 4 -dtb ${QEMU_DTB_PATH}"
+    elif [ "${ARCH}" == "x86_64" ] || [ "${ARCH}" == "x86" ] ; then
+        params+=" ${kvm}"
+        params+=" -fsdev local,id=home_dev,path=home,security_model=none -device virtio-9p-pci,fsdev=home_dev,mount_tag=host_home"
+        params+=" -fsdev local,id=share_dev,path=./,security_model=none -device virtio-9p-pci,fsdev=share_dev,mount_tag=host_share"
+        params+=" -device usb-host,vendorid=0x1a86,productid=0x5512"
+        params+=" -device usb-host,vendorid=0x04b4,productid=0x0005"
+        params+=" -device usb-host,vendorid=0x04b4,productid=0x0007"
+        params+=" -device usb-host,vendorid=0x04b4,productid=0x0009"
+        params+=" -device usb-host,vendorid=0x04b4,productid=0x000a"
+        params+=" -device usb-host,vendorid=0x04b4,productid=0x00ff"
+    else
+        echo "Unsupported arch: ${ARCH}"
+        exit 1
+    fi
+
+    eval "${qemu_exe} ${params}"
+}

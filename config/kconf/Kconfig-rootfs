@@ -1,0 +1,30 @@
+menuconfig YALDA_ROOTFS_BUILD
+  bool "build"
+  default y
+  help
+    build rootfs initrd image
+
+if YALDA_ROOTFS_BUILD
+
+config YALDA_ROOTFS_DIR
+  string "Work directory"
+  depends on YALDA_ROOTFS_BUILD
+  default "./components/rootfs"
+  help
+    Path to rootfs directory with files to be added
+
+config YALDA_ROOTFS_OUT
+  string "output"
+  depends on YALDA_ROOTFS_BUILD
+  default "./initrd.cpio.gz"
+  help
+    Path to resulting initrd.cpio.gz file
+
+config YALDA_ROOTFS_ADDITIONAL
+  string "additional directory"
+  default ""
+  depends on YALDA_ROOTFS_BUILD
+  help
+    Path to additional rootfs directory with configs, binaries etc
+
+endif #YALDA_ROOTFS_BUILD

@@ -1,0 +1,16 @@
+menu "gdb"
+
+config YALDA_GDB_SCRIPT
+  string "script"
+  default "./scripts/gdb/kernel_gdb_script"
+  help
+    GDB script to run
+
+config YALDA_GDB_PARAMETERS
+  string "parameters"
+  default "-tui -nx -iex set auto-load safe-path /"
+  help
+    GDB parameters
+
+endmenu
+

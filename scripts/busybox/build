@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+function _configure {
+	make defconfig KBUILD_DEFCONFIG="${BUSYBOX_CONFIG}"
+}
+
+function _install {
+	cp -r _install/* "${YALDA_OUT_BUSYBOX}/rootfs"
+}
+
+function _build {
+	make -j$(nproc)
+	make install
+}

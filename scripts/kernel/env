@@ -1,0 +1,33 @@
+# Set branch name based on required kernel version
+function kernel_set_branch {
+	version="$1"
+	local BRANCH="v${version}"
+	if   [ "${version}" == "host" ]; then
+		BRANCH="v$(host_kernel_version)"
+	elif [ "${version}" == "last" ]; then
+		BRANCH="${DFLT_KERNEL_BRANCH}"
+	fi
+
+	export KERNEL_BRANCH=${KERNEL_BRANCH:=$BRANCH}
+}
+
+set_param KERNEL_DIR
+set_param KERNEL_BUILD DFLT_NO
+set_param KERNEL_PATCH DFLT_NO
+set_param KERNEL_PATCHES_DIR
+set_param KERNEL_CONFIGURE DFLT_NO
+set_param KERNEL_CONFIG_PATH
+
+set_param KERNEL_DEFCONFIG
+set_param KERNEL_DEFCONFIG_PATH
+set_param KERNEL_VERSION
+set_param KERNEL_GIT
+
+set_param_choice KERNEL_SOURCE CONFIG_YALDA_KERNEL_FROM_GIT "git" CONFIG_YALDA_KERNEL_FROM_DIR "dir"
+set_param_choice KERNEL_CONFIGURE_METHOD CONFIG_YALDA_KERNEL_MANUAL_CONFIG "manual" CONFIG_YALDA_KERNEL_DEFCONFIG "defconfig"
+
+kernel_set_branch ${KERNEL_VERSION}
+
+export KERNEL_DIR="$(_realpath ${KERNEL_DIR})"
+export KERNEL_CONFIG_PATH="$(_realpath ${KERNEL_CONFIG_PATH})"
+export KERNEL_PATCHES_DIR="$(_realpath $KERNEL_PATCHES_DIR)";

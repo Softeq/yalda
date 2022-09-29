@@ -1,0 +1,15 @@
+menuconfig YALDA_WHISTLE_BUILD
+  bool "Whistle"
+  default y
+  help
+    Build whistle driver
+
+if YALDA_WHISTLE_BUILD
+
+config YALDA_WHISTLE_DIR
+  string "Work directory"
+  default "./components/whistle/subcomponents/kernel_module"
+  help
+    Path to whistle driver source tree
+
+endif #YALDA_WHISTLE_BUILD

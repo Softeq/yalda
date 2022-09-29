@@ -1,0 +1,5 @@
+set_param ROOTFS_BUILD DFLT_NO
+set_param ROOTFS_OUT
+set_param ROOTFS_DIR
+
+ROOTFS_OUT="$(_realpath ${ROOTFS_OUT})"
