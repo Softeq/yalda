@@ -1,0 +1,26 @@
+
+function get_test_list {
+    local test_list=(build)
+    echo ${test_list[*]}
+}
+
+function test_build {
+    local environment_file="$1"
+
+    local component_list=(kernel busybox whistle rootfs)
+
+    local failed_test_count=0
+    for component in ${component_list[@]}; do
+        # Test
+        ${ROOT_DIR}/yalda ${environment_file} ${component} build
+        if [ "$?" -ne 0 ]; then
+            failed_test_count=$((failed_test_count + 1))
+        fi
+    done
+
+    if [[ ${failed_test_count} == 0 ]]; then
+        return 0
+    else
+        return 1
+    fi
+}

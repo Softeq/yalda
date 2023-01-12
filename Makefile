@@ -7,7 +7,7 @@ export ROOT_DIR=${PWD}
 config_dir := ${PWD}/config
 scripts_dir := ${PWD}/scripts
 
-yalda_exe := ${ROOT_DIR}/yalda
+yalda_exe := ${ROOT_DIR}/yalda ${ROOT_DIR}/scripts/env
 
 kconfig_exe := kconfig-mconf
 kconfig := ${config_dir}/kconf/Kconfig-main
@@ -36,7 +36,7 @@ config-busybox:
 kernel: build-kernel
 build-kernel:
 	${MAKE} KERNEL_BUILD="y" .build-kernel
-	
+
 .build-busybox:
 	${yalda_exe} busybox build
 
@@ -57,7 +57,7 @@ build-whistle:
 rootfs: build-rootfs
 build-rootfs:
 	${MAKE} ROOTFS_BUILD="y" .build-rootfs
-	
+
 run-qemu:
 	${yalda_exe} qemu run
 

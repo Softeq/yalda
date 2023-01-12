@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 
-export component="$1"
-export action="$2"
+export environment="$1"
+export component="$2"
+export action="$3"
 
-source "${ROOT_DIR}/scripts/env"
+source "$environment"
 
 function get_conf_var {
-	local conf="$1"
-	local comp="${component}"
-	if [ ! "$2" == "" ]; then
-		comp="$2"
-	fi
+    local conf="$1"
+    local comp="${component}"
+    if [ ! "$2" == "" ]; then
+        comp="$2"
+    fi
 
-	local component_varname="${comp^^}_${conf^^}"
-	echo "${!component_varname}"
+    local component_varname="${comp^^}_${conf^^}"
+    echo "${!component_varname}"
 }
 
 component_dir="$(get_conf_var dir)"
@@ -31,67 +32,67 @@ component_out="$(get_conf_var out_${component} yalda)"
 # TODO: redesign rootfs output
 component_out_rootfs="${component_out}/rootfs"
 if [ "${component}" == "rootfs" ]; then
-	component_out_rootfs="${component_out}"
+    component_out_rootfs="${component_out}"
 fi
 
 function component_fetch {
-	if [ -d "${component_dir}" ]; then
-		rm -rf "${component_dir}"
-	fi
-	git clone -b "${component_branch}" --depth 1 "${component_git}" "${component_dir}"
+    if [ -d "${component_dir}" ]; then
+        rm -rf "${component_dir}"
+    fi
+    git clone -b "${component_branch}" --depth 1 "${component_git}" "${component_dir}"
 }
 
 function component_patch {
-	export QUILT_PATCHES=${component_patches_dir}
-	quilt unapplied >/dev/null 2>/dev/null && quilt push -a
+    export QUILT_PATCHES=${component_patches_dir}
+    quilt unapplied >/dev/null 2>/dev/null && quilt push -a
 }
 
 function component_build {
-	if [ ! "${component_build}" == "y" ]; then
-		return
-	fi
+    if [ ! "${component_build}" == "y" ]; then
+        return
+    fi
 
-	if [ "${component_source}" == "git" ]; then
-		component_fetch
-	fi
+    if [ "${component_source}" == "git" ]; then
+        component_fetch
+    fi
 
-	if [ ! -d "${component_dir}" ]; then
-		echo "WARNING! ${component_dir} does not exist, skipping"
-		exit 1
-	fi
+    if [ ! -d "${component_dir}" ]; then
+        echo "WARNING! ${component_dir} does not exist, skipping"
+        exit 1
+    fi
 
-	chdir "${component_dir}"
+    chdir "${component_dir}"
 
-	if [ "${component_configure}" == "y" ]; then
-		_configure
-	fi
+    if [ "${component_configure}" == "y" ]; then
+        _configure
+    fi
 
-	if [ "${component_patch}" == "y" ]; then
-		component_patch
-	fi
+    if [ "${component_patch}" == "y" ]; then
+        component_patch
+    fi
 
-	_build
+    _build
 
-	rm -rf "${component_out}"
-	mkdir -pv "${component_out}" "${component_out_rootfs}"
+    rm -rf "${component_out}"
+    mkdir -pv "${component_out}" "${component_out_rootfs}"
 
-	_install
+    _install
 }
 
 
 function component_run {
-	_run
+    _run
 }
 
 function component_clean {
-	chdir "${component_dir}"
-	_clean
+    chdir "${component_dir}"
+    _clean
 }
 
 function command_execute {
-	component_${action}
+    component_${action}
 
-	return
+    return
 }
 
 command_execute

@@ -1,0 +1,18 @@
+function log {
+    local level="$1"
+    local message="$2"
+
+    echo "***"
+    echo "   [YALADA-TEST] [${level}]: ${message}"
+    echo "***"
+}
+
+function log_info {
+    local message="$1"
+    log "INFO" "${message}"
+}
+
+function log_warn {
+    local message="$1"
+    log "WARNING" "${message}"
+}
