@@ -1,0 +1,63 @@
+#
+# Automatically generated file; DO NOT EDIT.
+# Yalda configuration
+#
+# CONFIG_YALDA_ARCH_X86 is not set
+CONFIG_YALDA_ARCH_ARM=y
+# CONFIG_YALDA_64BIT is not set
+CONFIG_YALDA_CROSS_COMPILE="arm-linux-gnueabihf-"
+
+#
+# build
+#
+CONFIG_YALDA_KERNEL_BUILD=y
+CONFIG_YALDA_KERNEL_DIR="./tests/generated/arm_default/components/kernel"
+CONFIG_YALDA_KERNEL_FROM_GIT=y
+# CONFIG_YALDA_KERNEL_FROM_DIR is not set
+CONFIG_YALDA_KERNEL_VERSION="host"
+CONFIG_YALDA_KERNEL_CONFIGURE=y
+CONFIG_YALDA_KERNEL_DEFCONFIG=y
+# CONFIG_YALDA_KERNEL_MANUAL_CONFIG is not set
+CONFIG_YALDA_KERNEL_DEFCONFIG_PATH="virt_defconfig"
+CONFIG_YALDA_KERNEL_PATCH=y
+CONFIG_YALDA_KERNEL_PATCHES_DIR="./patches/kernel"
+CONFIG_YALDA_BUSYBOX_BUILD=y
+CONFIG_YALDA_BUSYBOX_DIR="./tests/generated/arm_default/components/busybox"
+CONFIG_YALDA_BUSYBOX_FROM_GIT=y
+# CONFIG_YALDA_BUSYBOX_FROM_DIR is not set
+CONFIG_YALDA_BUSYBOX_CONFIG="./config/busybox/busybox.config"
+CONFIG_YALDA_BUSYBOX_CONFIGURE=y
+CONFIG_YALDA_BUSYBOX_PATCH=y
+CONFIG_YALDA_BUSYBOX_PATCHES_DIR="./patches/busybox"
+CONFIG_YALDA_ROOTFS_BUILD=y
+CONFIG_YALDA_ROOTFS_DIR="./components/rootfs"
+CONFIG_YALDA_ROOTFS_OUT="./tests/generated/arm_default/initrd.cpio.gz"
+CONFIG_YALDA_ROOTFS_ADDITIONAL=""
+
+#
+# Addons
+#
+# CONFIG_YALDA_WHISTLE_BUILD is not set
+
+#
+# run
+#
+# CONFIG_YALDA_RUN_EARLY_DEBUG is not set
+# CONFIG_YALDA_RUN_HOST_KERNEL is not set
+CONFIG_YALDA_RUN_KERNEL_IMAGE_PATH="./tests/generated/arm_default/out/kernel/boot/zImage"
+CONFIG_YALDA_RUN_KERNEL_VMLINUX_PATH="./tests/generated/arm_default/out/kernel/vmlinux"
+CONFIG_YALDA_RUN_INITRD_PATH="./tests/generated/arm_default/initrd.cpio.gz"
+CONFIG_YALDA_RUN_KERNEL_CMDLINE="rdinit=/sbin/init rw earlyprintk loglevel=8 console=ttyAMA0"
+
+#
+# qemu
+#
+CONFIG_YALDA_QEMU_DTB_PATH="./tests/generated/arm_default/out/kernel/dtb/bcm2836-rpi-2-b.dtb"
+CONFIG_YALDA_QEMU_MEM="2"
+
+#
+# gdb
+#
+CONFIG_YALDA_GDB_SCRIPT="./scripts/gdb/kernel_gdb_script"
+CONFIG_YALDA_GDB_PARAMETERS="-tui -nx -iex set auto-load safe-path /"
+# CONFIG_YALDA_VERBOSE is not set
