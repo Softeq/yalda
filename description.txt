@@ -1,0 +1,123 @@
+Description of YALDA project structure
+
+YALDA project provides tools for build Linux image alongside with
+different components required for running and debugging kernel modules.
+It support build of the following components:
+    - kernel
+    - rootfs
+    - busybox
+    - whistle (not build )
+
+The build steps of the components provided by "YALDA/yalda" script.
+
+1. Configuration of YALDA project
+- Run "make menuconfig". Kconfig files for YALDA configuration: "YALDA/config/kconf"
+- Configure environment according to requirements. Save configuration in .config
+  file at: "YALDA/.config"
+
+2. Configuration of components
+- Environment variables will be created for the components: kernel, busybox, whistle, rootfs.
+- "YALDA/yalda" depends on:
+    -- "YALDA/scripts/env"
+- "YALDA/scripts/env" depends on:
+    -- "YALDA/scripts/utils"
+    -- "YALDA/config/default"
+    -- "YALDA/.config"
+- "YALDA/yalda" processing based on parameters exported in "YALDA/scripts/env".
+- "YALDA/scripts/env" setup environment variables general for all components.
+- "YALDA/scripts/env" setup environment variables by the following rule:
+    -- If variable is not set: set variable to value of "YALDA/.config" variable.
+    -- If "YALDA/.config" variable was not set: set variable to value of "YALDA/config/default" variable.
+- For each component "YALDA/scripts/env" setup environment variables from "YALDA/scripts/<component_name>/env".
+- Preparation of component source follows the rule:
+    -- If "YALDA/.config":KERNEL_FROM_GIT=y: sources get from git and stored in "YALDA/components/<component_name>".
+    -- Else: expect that component source exist at "YALDA/components/<component_name>".
+
+2.2. Prepare component
+- For each component "YALDA/scripts/env" setup component actions from "YALDA/scripts/<component_name>/build".
+
+2.2.1. Prepare component: kernel
+- Configure kernel:
+    -- If "YALDA/.config":KERNEL_DEFCONFIG=y:
+        -- Merge "YALDA/config/kernel/kernel.config.common" -> "YALDA/components/kernel/.config".
+        -- Merge "YALDA/config/arch/<arch>/kernel.config" -> "YALDA/components/kernel/.config".
+    -- Else: Copy existed kernel config "YALDA/config/kernel/kernel.config.last" to "YALDA/components/kernel/.config".
+    -- Copy "YALDA/components/kernel/.config" to "YALDA/config/kernel/kernel.config.last".
+- Patch kernel:
+    -- Apply patches in "YALDA/patches/kernel" to "YALDA/components/kernel".
+- Build kernel:
+    -- If "YALDA/.config":ARCH_ARM=y: build devicetree.
+    -- Create directory "YALDA/out/kernel".
+    -- Create build output in "YALDA/components/kernel".
+- Install kernel:
+    -- If "YALDA/.config":ARCH_ARM=y: copy devicetree to "YALDA/out/kernel".
+    -- If "YALDA/.config":KERNEL_FROM_HOST=y": copy host kernel to "YALDA/out/kernel".
+    -- Else: copy image, vmlinux, gdb scripts from "YALDA/components/kernel" to "YALDA/out/kernel".
+
+2.2.2. Prepare component: busybox
+- Configure busybox:
+    -- Configure with file from "YALDA/config/busybox/busybox.config".
+- Patch busybox:
+    -- Apply patches in "YALDA/patches/busybox" to "YALDA/components/busybox".
+- Build busybox:
+    -- Create build output in "YALDA/components/busybox".
+- Install busybox:
+    -- Copy build output from "YALDA/components/busybox" to "YALDA/out/busybox".
+
+2.2.3. Prepare component: rootfs
+- Install rootfs:
+    -- Copy build result from "YALDA/components/rootfs",
+       "YALDA/out/kernel", "YALDA/out/busybox" to "YALDA/out/rootfs"
+
+
+YALDA Kconfig tree (arm, all flags enabled):
+
+Target (arm)  --->
+    ( ) x86
+    (X) arm
+[*] 64 bit
+(arm-linux-gnueabihf-) CROSS_COMPILE
+
+build
+    [*] Kernel  --->
+        (./components/kernel) Work directory
+            Kernel source (dir)  --->
+                ( ) git
+                (X) dir
+        [*] configure
+                method (defconfig)  --->
+                    (X) defconfig
+                    ( ) manual
+        (bcm2835_defconfig) defconfig
+        [*] patch
+        (./patches/kernel) patches dir
+    [*] Busybox  --->
+        (./components/busybox) Work directory
+            Source (git)  --->
+                (X) git
+                ( ) dir
+        (./config/busybox/busybox.config) defconfig
+        -*- configure
+        [*] Patch
+        (./patches/busybox) directory
+    [*] build  --->
+        (./components/rootfs) Work directory
+        (./initrd.cpio.gz) output
+        () additional directory
+    Addons
+        [*] Whistle  --->
+            (./components/whistle/subcomponents/kernel_module) Work directory
+run
+    [*] early debug
+    [*] host kernel
+    (./out/kernel/boot/zImage) kernel
+    (./out/kernel/vmlinux) vmlinux
+    (./initrd.cpio.gz) initrd
+    (rdinit=/sbin/init rw earlyprintk loglevel=8 console=ttyAMA0) cmdline
+    --> qemu
+        (out/kernel/dtb/bcm2836-rpi-2-b.dtb) dtb
+        (2) memory (GB)
+    --> gdb
+        (./scripts/gdb/kernel_gdb_script) script
+        (-tui -nx -iex set auto-load safe-path /) parameters
+[*] Verbose output
