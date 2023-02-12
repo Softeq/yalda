@@ -29,12 +29,8 @@ function _build {
 }
 
 function _install {
-	mkdir -pv ${YALDA_OUT_KERNEL}/{dtb,boot}
+	mkdir -pv ${YALDA_OUT_KERNEL}/boot
 	make INSTALL_MOD_PATH="${YALDA_OUT_KERNEL}/rootfs" modules_install
-
-	if [[ "${ARCH}" =~ ^arm[0-9]*$ ]]; then
-		cp arch/${ARCH}/boot/dts/*.dtb "${YALDA_OUT_KERNEL}/dtb"
-	fi
 
 	set_param KERNEL_FROM_HOST
 	if [ "${KERNEL_FROM_HOST}" == "y" ]; then

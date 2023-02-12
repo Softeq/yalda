@@ -36,6 +36,3 @@ DFLT_ROOTFS_DIR="$(realpath ${DFLT_ROOTFS_DIR})"
 DFLT_ROOTFS_OUT="$(realpath ${ROOT_DIR}/initrd.cpio.gz)"
 
 DFLT_WHISTLE_DIR="$(realpath ${COMPONENTS_DIR}/whistle/subcomponents/kernel_module)"
-
-DFLT_QEMU_MACHINE="raspi2"
-DFLT_QEMU_CPU="arm1176"

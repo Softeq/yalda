@@ -1,12 +1,5 @@
 menu "qemu"
 
-config YALDA_QEMU_DTB_PATH
-  string "dtb"
-  depends on YALDA_ARCH_ARM
-  default "out/kernel/dtb/bcm2836-rpi-2-b.dtb"
-  help
-    Path to Device Tree Blob (dtb) file
-
 config YALDA_QEMU_MEM
   string "memory (GB)"
   default "2"
