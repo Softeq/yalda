@@ -1,0 +1,22 @@
+diff --git a/components/busybox/coreutils/ls.c b/components/busybox/coreutils/ls.c
+index b69b804..0ac00bf 100644
+--- a/components/busybox/coreutils/ls.c
++++ b/components/busybox/coreutils/ls.c
+@@ -924,7 +924,7 @@ static void sort_and_display_files(struct dnode **dn, unsigned nfiles)
+ static struct dnode **scan_one_dir(const char *path, unsigned *nfiles_p)
+ {
+ 	struct dnode *dn, *cur, **dnp;
+-	struct dirent *entry;
++	struct dirent64 *entry;
+ 	DIR *dir;
+ 	unsigned i, nfiles;
+ 
+@@ -936,7 +936,7 @@ static struct dnode **scan_one_dir(const char *path, unsigned *nfiles_p)
+ 	}
+ 	dn = NULL;
+ 	nfiles = 0;
+-	while ((entry = readdir(dir)) != NULL) {
++	while ((entry = readdir64(dir)) != NULL) {
+ 		char *fullname;
+ 
+ 		/* are we going to list the file- it may be . or .. or a hidden file */

@@ -1,0 +1,2 @@
+# fixes ls to show shared folder contents when used 32-bit guest reads directory contents, owned by 64 bit host
+sddedu-465-9p-ls-readdir-fix.patch

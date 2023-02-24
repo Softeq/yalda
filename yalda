@@ -44,7 +44,8 @@ function component_fetch {
 
 function component_patch {
     export QUILT_PATCHES=${component_patches_dir}
-    quilt unapplied >/dev/null 2>/dev/null && quilt push -a
+    echo 'Patching...'
+    quilt unapplied && quilt push -a
 }
 
 function component_build {
